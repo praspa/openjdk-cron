@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: openjdk-cron
+  annotations:
+    description: 'Template for an openjdk cron job'
+    tags: 'cron'
+parameters:
+  - name: CRONJOB_SCHEDULE
+    description: 'Cron-like schedule expression'
+  - name: CRONJOB_NAME
+    description: 'Name of the cronjob object'
+  - name: IMAGE_STREAM_NAME
+    description: 'name of the project/image stream/version tag e.g. myproject/myimagestream:latest'
+    required: true
+objects:
+  - apiVersion: batch/v1beta1
+    kind: CronJob
+    metadata:
+      name: ${CRONJOB_NAME}
+    spec:
+      successfulJobHistoryLimit: 0
+      failedJobsHistoryLimit: 0
+      schedule: ${CRONJOB_SCHEDULE}
+      concurrencyPolicy: Forbid
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              containers:
+                - name: ${CRONJOB_NAME}
+                  image: 'docker-registry.default.svc:5000/${IMAGE_STREAM_NAME}'
+                  command:
+                  env:
+                    - name: IMAGE_STREAM_NAME
+                      value: ${IMAGE_STREAM_NAME}
+              restartPolicy: Never
+

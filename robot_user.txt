@@ -1,0 +1,10 @@
+
+oc create serviceaccount robot
+
+oc describe secret <robot token>
+
+oc adm policy add-role-to-user admin --rolebinding-name=admin -z robot
+
+oc create -f cronjob_admin.yaml
+
+oc adm policy add-role-to-user cronjob-admin -z robot
